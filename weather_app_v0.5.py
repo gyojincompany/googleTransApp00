@@ -51,12 +51,31 @@ class WeatherAppWindow(QMainWindow, form_class):
         print(dust2_info)
 
         self.area_label.setText(area_text)
-        self.weather_label.setText(today_weather)
+        self.setWeatherImage(today_weather)
         self.temper_label.setText(today_temper)
         self.yesterday_label.setText(yesterday_weather)
         self.sense_temper_label.setText(sense_temper_text)
         self.dust1_info_label.setText(dust1_info)
         self.dust2_info_label.setText(dust2_info)
+    
+    # 날씨 정보에 따라 해당 날씨 이미지 출력 함수
+    def setWeatherImage(self, weatherInfo):
+        if weatherInfo == "흐림":
+            weatherImg = QPixmap("image/cloud.png")
+        elif weatherInfo == "맑음":
+            weatherImg = QPixmap("image/sun.png")
+        elif weatherInfo == "눈":
+            weatherImg = QPixmap("image/snow.png")
+        elif weatherInfo == "비":
+            weatherImg = QPixmap("image/rain.png")
+        elif weatherInfo == "구름많음":
+            weatherImg = QPixmap("image/cloud.png")
+        else:
+            self.weather_label.setText(weatherInfo)
+
+        self.weather_label.setPixmap(QPixmap(weatherImg))
+
+
 
 
 if __name__ == '__main__':
