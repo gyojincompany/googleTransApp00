@@ -15,28 +15,12 @@ form_class = uic.loadUiType("ui/weatherAppUi.ui")[0]
 class WeatherInfoThread(QThread):
     def __init__(self, parent):
         super().__init__(parent)
+        self.parent = parent
 
-    def run(self):
+    def weatherInfoOutput(self, weather_area):
 
+        weather_info = []
 
-
-class WeatherAppWindow(QMainWindow, form_class):
-    def __init__(self):
-        super().__init__()
-        self.setupUi(self)
-        self.setWindowTitle("오늘의 날씨")
-        self.setWindowIcon(QIcon("icons/weather_icon.png"))
-        self.statusBar().showMessage('WEATHER APP VER 0.5')
-        self.setWindowFlags(Qt.WindowStaysOnTopHint) # 윈도우가 항상위
-
-        #날씨 조회 버튼
-        self.weather_button.clicked.connect(self.crawling_weather)
-        self.weather_button.clicked.connect(self.reflashTimer)
-
-
-    def crawling_weather(self):
-
-        weather_area = self.input_area.text() # 유저가 입력한 지역텍스트 가져오기
         weather_html = requests.get(f"https://search.naver.com/search.naver?&query={weather_area}날씨")
 
         weather_soup = BeautifulSoup(weather_html.text, 'html.parser')
@@ -67,13 +51,10 @@ class WeatherAppWindow(QMainWindow, form_class):
             print(dust1_info)
             print(dust2_info)
 
-            self.area_label.setText(area_text)
-            self.setWeatherImage(today_weather)
-            self.temper_label.setText(today_temper)
-            self.yesterday_label.setText(yesterday_weather)
-            self.sense_temper_label.setText(sense_temper_text)
-            self.dust1_info_label.setText(dust1_info)
-            self.dust2_info_label.setText(dust2_info)
+            weather_info.append([area_text]+[today_temper]+[yesterday_weather]+[today_weather]+[sense_temper_text]+[dust1_info]+[dust2_info])
+
+            return weather_info
+
         except:
             try:
                 area_text = weather_soup.find('span', {'class':'btn_select'}).text
@@ -83,34 +64,75 @@ class WeatherAppWindow(QMainWindow, form_class):
                 today_weather = today_weather[0:2]
                 today_weather = today_weather.strip()
                 print(today_weather)
-                self.area_label.setText(area_text)
-                self.setWeatherImage(today_weather)
-                self.temper_label.setText(f"{today_temper} ℃")
-                self.yesterday_label.setText("-")
-                self.sense_temper_label.setText("-")
-                self.dust1_info_label.setText("-")
-                self.dust2_info_label.setText("-")
+                #해외 지역에 없는 날씨 값
+                yesterday_weather = "-"
+                sense_temper_text = "-"
+                dust1_info = "-"
+                dust2_info = "-"
+
+                weather_info.append([area_text]+[today_temper]+[yesterday_weather]+[today_weather]+[sense_temper_text]+[dust1_info]+[dust2_info])
+                return weather_info
 
             except:
-                self.area_label.setText("입력된 지역의 날씨 없음")
+                return 0
+
+
+
+class WeatherAppWindow(QMainWindow, form_class):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowTitle("오늘의 날씨")
+        self.setWindowIcon(QIcon("icons/weather_icon.png"))
+        self.statusBar().showMessage('WEATHER APP VER 0.5')
+        self.setWindowFlags(Qt.WindowStaysOnTopHint) # 윈도우가 항상위
+        self.weather_info = WeatherInfoThread(self)
+
+        #날씨 조회 버튼
+        self.weather_button.clicked.connect(self.crawling_weather)
+        # self.weather_button.clicked.connect(self.reflashTimer)
+
+
+    def crawling_weather(self):
+
+        weather_area = self.input_area.text() # 유저가 입력한 지역텍스트 가져오기
+
+        weather_result = self.weather_info.weatherInfoOutput(weather_area)
+
+        if weather_result == 0:
+            self.area_label.setText("입력된 지역의 날씨 없음")
+        else:
+            self.area_label.setText(weather_result[0][0])
+            self.setWeatherImage(weather_result[0][3])
+            self.temper_label.setText(weather_result[0][1])
+            self.yesterday_label.setText(weather_result[0][2])
+            self.sense_temper_label.setText(weather_result[0][4])
+            self.dust1_info_label.setText(weather_result[0][5])
+            self.dust2_info_label.setText(weather_result[0][6])
+
 
     
     # 날씨 정보에 따라 해당 날씨 이미지 출력 함수
     def setWeatherImage(self, weatherInfo):
         if weatherInfo == "흐림":
             weatherImg = QPixmap("image/cloud.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         elif weatherInfo == "맑음":
             weatherImg = QPixmap("image/sun.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         elif weatherInfo == "눈":
             weatherImg = QPixmap("image/snow.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         elif weatherInfo == "비":
             weatherImg = QPixmap("image/rain.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         elif weatherInfo == "구름많음":
             weatherImg = QPixmap("image/cloud.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         else:
             self.weather_label.setText(weatherInfo)
 
-        self.weather_label.setPixmap(QPixmap(weatherImg))
+
 
     def reflashTimer(self):
         self.crawling_weather()
