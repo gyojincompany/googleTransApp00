@@ -91,18 +91,26 @@ class WeatherAppWindow(QMainWindow, form_class):
     def setWeatherImage(self, weatherInfo):
         if weatherInfo == "흐림":
             weatherImg = QPixmap("image/cloud.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         elif weatherInfo == "맑음":
             weatherImg = QPixmap("image/sun.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         elif weatherInfo == "눈":
             weatherImg = QPixmap("image/snow.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         elif weatherInfo == "비":
             weatherImg = QPixmap("image/rain.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         elif weatherInfo == "구름많음":
             weatherImg = QPixmap("image/cloud.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         else:
             self.weather_label.setText(weatherInfo)
 
-        self.weather_label.setPixmap(QPixmap(weatherImg))
+        # try:
+        #     self.weather_label.setPixmap(QPixmap(weatherImg))
+        # except:
+        #     self.weather_label.setText(weatherInfo)
 
     def reflashTimer(self):
         self.crawling_weather()
