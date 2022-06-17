@@ -101,6 +101,9 @@ class WeatherAppWindow(QMainWindow, form_class):
         elif weatherInfo == "비":
             weatherImg = QPixmap("image/rain.png")
             self.weather_label.setPixmap(QPixmap(weatherImg))
+        elif weatherInfo == "소낙":
+            weatherImg = QPixmap("image/rain.png")
+            self.weather_label.setPixmap(QPixmap(weatherImg))
         elif weatherInfo == "구름많음":
             weatherImg = QPixmap("image/cloud.png")
             self.weather_label.setPixmap(QPixmap(weatherImg))
