@@ -8,9 +8,17 @@ from bs4 import BeautifulSoup
 from PyQt5 import uic
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread
 
 form_class = uic.loadUiType("ui/weatherAppUi.ui")[0]
+
+class WeatherInfoThread(QThread):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def run(self):
+
+
 
 class WeatherAppWindow(QMainWindow, form_class):
     def __init__(self):
